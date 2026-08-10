@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SiteForge AI — Создай сайт с помощью AI</title>
+  <meta name="description" content="SiteForge AI — генератор современных сайтов с помощью искусственного интеллекта.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+
+  <header class="header">
+    <a class="logo" href="#"><span class="logo-mark">✦</span> SiteForge <b>AI</b></a>
+    <nav>
+      <a href="#features">Возможности</a>
+      <a href="#templates">Шаблоны</a>
+      <a href="#pricing">Цены</a>
+    </nav>
+    <button class="btn btn-small btn-outline" id="loginBtn">Войти</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="pulse"></span> AI-конструктор нового поколения</div>
+        <h1>Твоя идея.<br><span>Готовый сайт.</span><br>За минуты.</h1>
+        <p>Опиши бизнес обычными словами — SiteForge AI создаст структуру, дизайн и код современного сайта.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#builder">Создать сайт <span>→</span></a>
+          <a class="btn btn-ghost" href="#templates">Посмотреть шаблоны</a>
+        </div>
+        <div class="trust"><div class="avatars"><i>А</i><i>М</i><i>К</i><i>+</i></div><span>Уже тестируют 2 000+ создателей</span></div>
+      </div>
+
+      <div class="hero-card reveal delay">
+        <div class="window-bar"><span></span><span></span><span></span><small>siteforge.ai / preview</small></div>
+        <div class="preview">
+          <div class="preview-nav"><strong>NOVA</strong><div><em></em><em></em><em></em></div></div>
+          <div class="preview-hero">
+            <small>THE FUTURE IS HERE</small>
+            <h3>Build something<br><span>remarkable.</span></h3>
+            <p>Сайт, который выглядит как продукт будущего.</p>
+            <button>Explore →</button>
+          </div>
+          <div class="preview-cards"><b></b><b></b><b></b></div>
+        </div>
+        <div class="ai-badge">✦ AI generated <span>● Live</span></div>
+      </div>
+    </section>
+
+    <section class="builder section" id="builder">
+      <div class="section-heading reveal">
+        <div class="eyebrow">01 / GENERATOR</div>
+        <h2>Расскажи, что тебе нужно.</h2>
+        <p>Не нужен опыт программирования. Просто напиши идею.</p>
+      </div>
+
+      <div class="builder-grid">
+        <div class="prompt-box glass reveal">
+          <label for="prompt">Твоя идея</label>
+          <textarea id="prompt" placeholder="Например: Сделай премиальный сайт для автосервиса в чёрно-красном стиле с каталогом автомобилей..."></textarea>
+          <div class="chips">
+            <button data-prompt="Сайт для современного автосалона с каталогом автомобилей">🚗 Автосалон</button>
+            <button data-prompt="Премиальный сайт ресторана с меню и бронированием">🍽️ Ресторан</button>
+            <button data-prompt="Современный сайт IT-стартапа с тарифами и анимациями">💻 IT-стартап</button>
+          </div>
+          <div class="builder-bottom">
+            <span>✦ AI готов</span>
+            <button class="btn btn-primary" id="generateBtn">Сгенерировать <span>↗</span></button>
+          </div>
+        </div>
+
+        <div class="result-box glass reveal delay" id="resultBox">
+          <div class="result-empty" id="emptyState">
+            <div class="spark">✦</div>
+            <h3>Здесь появится твой сайт</h3>
+            <p>Опиши проект слева и нажми «Сгенерировать».</p>
+          </div>
+          <div class="generated" id="generated">
+            <div class="mini-site">
+              <div class="mini-top"><strong id="siteName">NOVA</strong><span>Home &nbsp; About &nbsp; Contact</span></div>
+              <div class="mini-main">
+                <small id="siteTag">DIGITAL EXPERIENCE</small>
+                <h3 id="siteTitle">Создаём<br><span>будущее.</span></h3>
+                <p id="siteDesc">Современный цифровой опыт для твоего бизнеса.</p>
+                <button>Начать проект →</button>
+              </div>
+              <div class="mini-stats"><span><b>24/7</b> AI</span><span><b>100%</b> responsive</span><span><b>∞</b> ideas</span></div>
+            </div>
+            <div class="result-actions"><button class="btn btn-outline" id="editBtn">✎ Редактировать</button><button class="btn btn-primary" id="publishBtn">🚀 Опубликовать</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features section" id="features">
+      <div class="section-heading reveal">
+        <div class="eyebrow">02 / POWER</div>
+        <h2>Всё необходимое<br><span>в одном месте.</span></h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card big reveal"><div class="icon">✦</div><h3>AI Website Builder</h3><p>Генерируй структуру и дизайн сайта из одного текстового запроса.</p><div class="code-lines"><i></i><i></i><i></i><i></i></div></article>
+        <article class="feature-card reveal"><div class="icon">⌁</div><h3>Мгновенный дизайн</h3><p>Современные интерфейсы, адаптивность и анимации автоматически.</p></article>
+        <article class="feature-card reveal"><div class="icon">⌘</div><h3>Настоящий код</h3><p>Получай чистый HTML, CSS, JavaScript или экспортируй проект.</p></article>
+        <article class="feature-card reveal"><div class="icon">↗</div><h3>Публикация</h3><p>Подключи домен и отправь проект в интернет в несколько кликов.</p></article>
+      </div>
+    </section>
+
+    <section class="templates section" id="templates">
+      <div class="section-heading split reveal">
+        <div><div class="eyebrow">03 / TEMPLATES</div><h2>Стартуй быстрее.</h2></div>
+        <button class="btn btn-outline" id="shuffleBtn">Случайный шаблон ↻</button>
+      </div>
+      <div class="template-grid">
+        <article class="template t1 reveal"><div class="template-ui"><small>01 — AUTOMOTIVE</small><h3>Drive<br><span>Beyond.</span></h3><button>Explore</button></div><footer>Автомобили <b>↗</b></footer></article>
+        <article class="template t2 reveal"><div class="template-ui"><small>02 — CREATIVE</small><h3>Make it<br><span>iconic.</span></h3><button>View work</button></div><footer>Портфолио <b>↗</b></footer></article>
+        <article class="template t3 reveal"><div class="template-ui"><small>03 — STARTUP</small><h3>Build<br><span>the next.</span></h3><button>Get started</button></div><footer>Стартап <b>↗</b></footer></article>
+      </div>
+    </section>
+
+    <section class="pricing section" id="pricing">
+      <div class="section-heading reveal"><div class="eyebrow">04 / PRICING</div><h2>Выбери свой уровень.</h2></div>
+      <div class="price-grid">
+        <article class="price reveal"><h3>Free</h3><div class="price-number">$0 <small>/ мес</small></div><p>Для первых экспериментов.</p><ul><li>✓ 3 проекта</li><li>✓ AI-генерация</li><li>✓ Базовые шаблоны</li></ul><button class="btn btn-outline full">Начать бесплатно</button></article>
+        <article class="price featured reveal"><div class="popular">ПОПУЛЯРНЫЙ</div><h3>Pro</h3><div class="price-number">$19 <small>/ мес</small></div><p>Для создателей и фрилансеров.</p><ul><li>✓ Безлимитные проекты</li><li>✓ Продвинутый AI</li><li>✓ Экспорт кода</li><li>✓ Свой домен</li></ul><button class="btn btn-primary full">Выбрать Pro</button></article>
+        <article class="price reveal"><h3>Business</h3><div class="price-number">$59 <small>/ мес</small></div><p>Для команд и бизнеса.</p><ul><li>✓ Всё из Pro</li><li>✓ Командный доступ</li><li>✓ Аналитика</li><li>✓ Приоритетная поддержка</li></ul><button class="btn btn-outline full">Выбрать Business</button></article>
+      </div>
+    </section>
+
+    <section class="cta reveal">
+      <div class="cta-glow"></div>
+      <div class="eyebrow">READY TO BUILD?</div>
+      <h2>Твоя следующая идея<br><span>может быть сайтом.</span></h2>
+      <p>Создай первый проект бесплатно.</p>
+      <a href="#builder" class="btn btn-primary">Начать создавать ✦</a>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="logo"><span class="logo-mark">✦</span> SiteForge <b>AI</b></div><span>© 2026 SiteForge AI</span><div><a href="#pricing">Pricing</a><a href="#features">Features</a></div></footer>
+
+  <div class="toast" id="toast">✓ Готово</div>
+  <script src="script.js"></script>
+</body>
+</html>
