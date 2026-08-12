@@ -1,7 +1,8 @@
 import json
 import os
 from http.server import BaseHTTPRequestHandler
-from openai import OpenAI
+from google import genai
+from google.genai import types
 
 
 class handler(BaseHTTPRequestHandler):
@@ -39,15 +40,15 @@ class handler(BaseHTTPRequestHandler):
                 })
                 return
 
-            api_key = os.environ.get("OPENAI_API_KEY")
+            api_key = os.environ.get("GEMINI_API_KEY")
 
             if not api_key:
                 self.send_json(500, {
-                    "error": "OPENAI_API_KEY не настроен в Vercel"
+                    "error": "GEMINI_API_KEY не настроен в Vercel"
                 })
                 return
 
-            client = OpenAI(api_key=api_key)
+            client = genai.Client(api_key=api_key)
 
             system_prompt = """
 Ты — SiteForge AI, профессиональный AI-конструктор сайтов.
@@ -89,13 +90,16 @@ class handler(BaseHTTPRequestHandler):
 Верни только JSON.
 """
 
-            response = client.responses.create(
-                model="gpt-5-mini",
-                instructions=system_prompt,
-                input=prompt
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    response_mime_type="application/json",
+                ),
             )
 
-            text = response.output_text.strip()
+            text = response.text.strip()
 
             try:
                 result = json.loads(text)
