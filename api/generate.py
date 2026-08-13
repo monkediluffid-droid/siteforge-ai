@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from http.server import BaseHTTPRequestHandler
 from google import genai
 from google.genai import types
@@ -57,7 +58,7 @@ class handler(BaseHTTPRequestHandler):
 
 Твоя задача — создать готовый современный сайт.
 
-Верни ТОЛЬКО JSON следующего формата:
+Верни ТОЛЬКО валидный JSON следующего формата:
 
 {
   "title": "Название сайта",
@@ -67,7 +68,6 @@ class handler(BaseHTTPRequestHandler):
 }
 
 Требования:
-
 - современный дизайн;
 - адаптивность для телефона и компьютера;
 - красивые градиенты;
@@ -77,21 +77,14 @@ class handler(BaseHTTPRequestHandler):
 - карточки;
 - хорошая типографика;
 - полноценные секции;
-- JavaScript для интерактивности;
-- HTML должен быть готов к запуску;
-- CSS должен быть полноценным;
-- JavaScript должен быть полноценным.
+- JavaScript для интерактивности.
 
-Не используй Markdown.
-Не добавляй ```html.
-Не добавляй ```css.
-Не добавляй ```javascript.
-
-Верни только JSON.
+ОБЯЗАТЕЛЬНО возвращай все 4 ключа: title, html, css, js.
+Не используй разметку Markdown (никаких ```json).
 """
 
             response = client.models.generate_content(
-                model="gemini-3.5-flash",
+                model="gemini-2.0-flash",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
@@ -101,18 +94,29 @@ class handler(BaseHTTPRequestHandler):
 
             text = response.text.strip()
 
+            # Удаляем разметку markdown ```json ... ``` если она присутствует
+            text = re.sub(r"^```(?:json)?\s*", "", text)
+            text = re.sub(r"\s*```$", "", text)
+
             try:
                 result = json.loads(text)
             except json.JSONDecodeError:
                 start = text.find("{")
                 end = text.rfind("}")
-
                 if start != -1 and end != -1:
                     result = json.loads(text[start:end + 1])
                 else:
-                    raise ValueError("AI вернул неправильный JSON")
+                    raise ValueError("AI вернул некорректный ответ")
 
-            self.send_json(200, result)
+            # Проверяем наличие всех необходимых ключей
+            response_data = {
+                "title": result.get("title", "Мой сайт"),
+                "html": result.get("html", ""),
+                "css": result.get("css", ""),
+                "js": result.get("js", "")
+            }
+
+            self.send_json(200, response_data)
 
         except Exception as e:
             self.send_json(500, {
