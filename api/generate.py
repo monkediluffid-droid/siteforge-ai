@@ -1,9 +1,9 @@
 import json
 import os
 import re
+import urllib.request
+import urllib.error
 from http.server import BaseHTTPRequestHandler
-from google import genai
-from google.genai import types
 
 
 class handler(BaseHTTPRequestHandler):
@@ -49,8 +49,6 @@ class handler(BaseHTTPRequestHandler):
                 })
                 return
 
-            client = genai.Client(api_key=api_key)
-
             system_prompt = """
 Ты — SiteForge AI, профессиональный AI-конструктор сайтов.
 
@@ -83,17 +81,31 @@ class handler(BaseHTTPRequestHandler):
 Не используй разметку Markdown (никаких ```json).
 """
 
-            response = client.models.generate_content(
-                model="models/gemini-1.5-flash",
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    response_mime_type="application/json",
-                ),
+            payload = {
+                "input": f"{system_prompt}\n\nЗапрос пользователя: {prompt}",
+                "response_format": {
+                    "type": "json_object"
+                }
+            }
+
+            url = f"[https://generativelanguage.googleapis.com/v1alpha/interactions?key=](https://generativelanguage.googleapis.com/v1alpha/interactions?key=){api_key}"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST"
             )
 
-            text = response.text.strip()
+            with urllib.request.urlopen(req) as resp:
+                res_data = json.loads(resp.read().decode("utf-8"))
 
+            text = ""
+            if "outputs" in res_data and len(res_data["outputs"]) > 0:
+                text = res_data["outputs"][-1].get("text", "")
+            elif "output_text" in res_data:
+                text = res_data["output_text"]
+
+            text = text.strip()
             text = re.sub(r"^```(?:json)?\s*", "", text)
             text = re.sub(r"\s*```$", "", text)
 
@@ -116,6 +128,11 @@ class handler(BaseHTTPRequestHandler):
 
             self.send_json(200, response_data)
 
+        except urllib.error.HTTPError as e:
+            err_body = e.read().decode("utf-8")
+            self.send_json(500, {
+                "error": f"API Error: {err_body}"
+            })
         except Exception as e:
             self.send_json(500, {
                 "error": str(e)
