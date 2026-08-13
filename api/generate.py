@@ -1,8 +1,9 @@
 import json
 import os
 import re
-import requests
 from http.server import BaseHTTPRequestHandler
+from google import genai
+from google.genai import types
 
 
 class handler(BaseHTTPRequestHandler):
@@ -48,6 +49,8 @@ class handler(BaseHTTPRequestHandler):
                 })
                 return
 
+            client = genai.Client(api_key=api_key)
+
             system_prompt = """
 Ты — SiteForge AI, профессиональный AI-конструктор сайтов.
 
@@ -80,51 +83,27 @@ class handler(BaseHTTPRequestHandler):
 Не используй разметку Markdown (никаких ```json).
 """
 
-         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-            payload = {
-                "contents": [{
-                    "parts": [{
-                        "text": f"{system_prompt}\n\nЗапрос пользователя: {prompt}"
-                    }]
-                }],
-                "generationConfig": {
-                    "response_mime_type": "application/json"
-                }
-            }
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    response_mime_type="application/json",
+                ),
+            )
 
-            resp = requests.post(url, json=payload, timeout=60)
-            res_data = resp.json()
+            text = response.text.strip()
 
-            if resp.status_code != 200:
-                error_msg = res_data.get("error", {}).get("message", "API Error")
-                self.send_json(500, {"error": f"Gemini API: {error_msg}"})
-                return
+            text = re.sub(r"^
+http://googleusercontent.com/immersive_entry_chip/0
 
-            text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
+---
 
-            text = re.sub(r"^```(?:json)?\s*", "", text)
-            text = re.sub(r"\s*```$", "", text)
+### Шаг 3. Проверьте переменную окружения в Vercel
 
-            try:
-                result = json.loads(text)
-            except json.JSONDecodeError:
-                start = text.find("{")
-                end = text.rfind("}")
-                if start != -1 and end != -1:
-                    result = json.loads(text[start:end + 1])
-                else:
-                    raise ValueError("AI вернул некорректный ответ")
+Перейдите в настройки Vercel: **Project Settings** -> **Environment Variables**.
+1. Убедитесь, что переменная называется строго **`GEMINI_API_KEY`**.
+2. В поле **Value** вставьте заново ваш API ключ от Google AI Studio (он начинается на `AIzaSy...`). Убедитесь, что нет пробелов по краям.
+3. Сохраните переменную.
 
-            response_data = {
-                "title": result.get("title", "Мой сайт"),
-                "html": result.get("html", ""),
-                "css": result.get("css", ""),
-                "js": result.get("js", "")
-            }
-
-            self.send_json(200, response_data)
-
-        except Exception as e:
-            self.send_json(500, {
-                "error": str(e)
-            })
+После этого сохраните изменения в GitHub (**Commit**) и дождитесь статуса **Ready** в Vercel.
