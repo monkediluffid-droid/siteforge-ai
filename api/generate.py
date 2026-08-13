@@ -1,8 +1,7 @@
 import json
 import os
 import re
-import urllib.request
-import urllib.error
+import requests
 from http.server import BaseHTTPRequestHandler
 
 
@@ -81,31 +80,29 @@ class handler(BaseHTTPRequestHandler):
 Не используй разметку Markdown (никаких ```json).
 """
 
+            url = f"[https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=){api_key}"
+
             payload = {
-                "input": f"{system_prompt}\n\nЗапрос пользователя: {prompt}",
-                "response_format": {
-                    "type": "json_object"
+                "contents": [{
+                    "parts": [{
+                        "text": f"{system_prompt}\n\nЗапрос пользователя: {prompt}"
+                    }]
+                }],
+                "generationConfig": {
+                    "response_mime_type": "application/json"
                 }
             }
 
-            url = f"[https://generativelanguage.googleapis.com/v1alpha/interactions?key=](https://generativelanguage.googleapis.com/v1alpha/interactions?key=){api_key}"
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST"
-            )
+            resp = requests.post(url, json=payload, timeout=60)
+            res_data = resp.json()
 
-            with urllib.request.urlopen(req) as resp:
-                res_data = json.loads(resp.read().decode("utf-8"))
+            if resp.status_code != 200:
+                error_msg = res_data.get("error", {}).get("message", "API Error")
+                self.send_json(500, {"error": f"Gemini API: {error_msg}"})
+                return
 
-            text = ""
-            if "outputs" in res_data and len(res_data["outputs"]) > 0:
-                text = res_data["outputs"][-1].get("text", "")
-            elif "output_text" in res_data:
-                text = res_data["output_text"]
+            text = res_data["candidates"][0]["content"]["parts"][0]["text"].strip()
 
-            text = text.strip()
             text = re.sub(r"^```(?:json)?\s*", "", text)
             text = re.sub(r"\s*```$", "", text)
 
@@ -128,11 +125,6 @@ class handler(BaseHTTPRequestHandler):
 
             self.send_json(200, response_data)
 
-        except urllib.error.HTTPError as e:
-            err_body = e.read().decode("utf-8")
-            self.send_json(500, {
-                "error": f"API Error: {err_body}"
-            })
         except Exception as e:
             self.send_json(500, {
                 "error": str(e)
