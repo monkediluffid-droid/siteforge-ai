@@ -83,9 +83,8 @@ class handler(BaseHTTPRequestHandler):
 Не используй разметку Markdown (никаких ```json).
 """
 
-            # В качестве имени модели используем "gemini-flash" — универсальный псевдоним
             response = client.models.generate_content(
-                model="gemini-flash",
+                model="models/gemini-1.5-flash",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
@@ -95,7 +94,6 @@ class handler(BaseHTTPRequestHandler):
 
             text = response.text.strip()
 
-            # Очистка от возможного markdown
             text = re.sub(r"^```(?:json)?\s*", "", text)
             text = re.sub(r"\s*```$", "", text)
 
