@@ -83,8 +83,9 @@ class handler(BaseHTTPRequestHandler):
 Не используй разметку Markdown (никаких ```json).
 """
 
+            # В качестве имени модели используем "gemini-flash" — универсальный псевдоним
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-flash",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
@@ -94,7 +95,7 @@ class handler(BaseHTTPRequestHandler):
 
             text = response.text.strip()
 
-            # Удаляем разметку markdown ```json ... ``` если она присутствует
+            # Очистка от возможного markdown
             text = re.sub(r"^```(?:json)?\s*", "", text)
             text = re.sub(r"\s*```$", "", text)
 
@@ -108,7 +109,6 @@ class handler(BaseHTTPRequestHandler):
                 else:
                     raise ValueError("AI вернул некорректный ответ")
 
-            # Проверяем наличие всех необходимых ключей
             response_data = {
                 "title": result.get("title", "Мой сайт"),
                 "html": result.get("html", ""),
