@@ -2,8 +2,6 @@ import json
 import os
 import re
 from http.server import BaseHTTPRequestHandler
-from google import genai
-from google.genai import types
 
 
 class handler(BaseHTTPRequestHandler):
@@ -29,37 +27,33 @@ class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
+            # Безопасный импорт google-genai
+            from google import genai
+            from google.genai import types
+
             length = int(self.headers.get("Content-Length", 0))
             raw = self.rfile.read(length)
 
-            data = json.loads(raw.decode("utf-8"))
+            data = json.loads(raw.decode("utf-8") or "{}")
             prompt = data.get("prompt", "").strip()
 
             if not prompt:
-                self.send_json(400, {
-                    "error": "Напиши описание сайта"
-                })
+                self.send_json(400, {"error": "Напишите описание сайта"})
                 return
 
             api_key = os.environ.get("GEMINI_API_KEY")
-
             if not api_key:
-                self.send_json(500, {
-                    "error": "GEMINI_API_KEY не настроен в Vercel"
-                })
+                self.send_json(500, {"error": "GEMINI_API_KEY не настроен в Vercel"})
                 return
 
             client = genai.Client(api_key=api_key)
 
             system_prompt = """
 Ты — SiteForge AI, профессиональный AI-конструктор сайтов.
-
 Пользователь описывает сайт обычными словами.
-
 Твоя задача — создать готовый современный сайт.
 
 Верни ТОЛЬКО валидный JSON следующего формата:
-
 {
   "title": "Название сайта",
   "html": "полный HTML",
@@ -71,18 +65,14 @@ class handler(BaseHTTPRequestHandler):
 - современный дизайн;
 - адаптивность для телефона и компьютера;
 - красивые градиенты;
-- анимации;
-- hover-эффекты;
-- кнопки;
-- карточки;
-- хорошая типографика;
-- полноценные секции;
+- анимации, hover-эффекты;
+- кнопки, карточки, хорошая типографика;
 - JavaScript для интерактивности.
 
 ОБЯЗАТЕЛЬНО возвращай все 4 ключа: title, html, css, js.
-Не используй разметку Markdown (никаких ```json).
 """
 
+            # Используем актуальную модель Gemini 2.5 Flash
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=prompt,
@@ -93,17 +83,13 @@ class handler(BaseHTTPRequestHandler):
             )
 
             text = response.text.strip()
-
             text = re.sub(r"^
 http://googleusercontent.com/immersive_entry_chip/0
 
 ---
 
-### Шаг 3. Проверьте переменную окружения в Vercel
-
-Перейдите в настройки Vercel: **Project Settings** -> **Environment Variables**.
-1. Убедитесь, что переменная называется строго **`GEMINI_API_KEY`**.
-2. В поле **Value** вставьте заново ваш API ключ от Google AI Studio (он начинается на `AIzaSy...`). Убедитесь, что нет пробелов по краям.
-3. Сохраните переменную.
-
-После этого сохраните изменения в GitHub (**Commit**) и дождитесь статуса **Ready** в Vercel.
+#### 3. Проверьте переменную окружения в Vercel
+1. Откройте **Vercel Dashboard** -> ваш проект -> **Settings** -> **Environment Variables**.
+2. Проверьте, чтобы имя переменной было строго `GEMINI_API_KEY`.
+3. Убедитесь, что ваш API-ключ скопирован без лишних символов и кавычек.
+4. Нажмите **Redeploy** в панели Vercel (в вкладке *Deployments* -> *...* -> *Redeploy*), чтобы новые зависимости и код заступили в силу.
